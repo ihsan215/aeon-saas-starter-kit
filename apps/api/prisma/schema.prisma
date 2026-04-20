@@ -4,16 +4,69 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  GUEST
+}
+
 model User {
-  id    String  @id @default(uuid())
-  email String  @unique
-  name  String?
+  id          String       @id @default(uuid())
+  email       String       @unique
+  clerkId     String       @unique
+  name        String?
+  role        Role         @default(MEMBER)
+  memberships Membership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Organization {
+  id   String @id @default(cuid())
+  name String
+
+  teams   Team[]
+  members Membership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id   String @id @default(cuid())
+  name String
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  members Membership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Membership {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role   Role   @default(MEMBER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

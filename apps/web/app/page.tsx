@@ -1,6 +1,8 @@
+'use client';
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { getHello } from "../lib/apiClient/appController";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -96,6 +98,11 @@ export default function Home() {
           />
           Go to turborepo.dev →
         </a>
+
+        <button className={styles.secondary} onClick={async () => {
+          const hello = await getHello();
+          console.log(hello);
+        }}>Get Hello</button>
       </footer>
     </div>
   );
